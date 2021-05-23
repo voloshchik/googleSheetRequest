@@ -2,9 +2,10 @@ const express = require('express')
 
 const { google } = require('googleapis')
 
-const PORT = 12345
+const PORT = 8080
 const app = express()
 
+app.use(express.static(__dirname + '/node_modules/bootstrap/dist'))
 app.set('view engine', 'ejs')
 
 app.use(express.urlencoded({ extended: true }))
@@ -14,6 +15,8 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', async (req, res) => {
+  const { email, password } = req.body
+  console.log('email', email)
   const auth = new google.auth.GoogleAuth({
     keyFile: 'credentials.json',
     scopes: 'https://www.googleapis.com/auth/spreadsheets',
@@ -44,11 +47,10 @@ app.post('/', async (req, res) => {
     range: 'Sheet1!A:B',
     valueInputOption: 'USER_ENTERED',
     resource: {
-      values: [['lern', 'node.js']],
+      values: [[email, password]],
     },
   })
-
-  res.send(getRows.data)
+  res.redirect('/')
 })
 
 app.listen(PORT, () => {
